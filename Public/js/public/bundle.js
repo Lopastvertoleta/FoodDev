@@ -24567,7 +24567,43 @@
 	        { className: 'App' },
 	        _react2.default.createElement('link', { rel: 'stylesheet', href: 'https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap.min.css' }),
 	        _react2.default.createElement(
-	          _reactBootstrap.ButtonGroup,
+	          _reactBootstrap.PageHeader,
+	          null,
+	          'Welcome to FoodDev!'
+	        ),
+	        _react2.default.createElement(
+	          _reactBootstrap.Navbar,
+	          null,
+	          _react2.default.createElement(
+	            _reactBootstrap.Navbar.Header,
+	            null,
+	            _react2.default.createElement(
+	              _reactBootstrap.Navbar.Brand,
+	              null,
+	              _react2.default.createElement(
+	                'a',
+	                { href: '#' },
+	                'React-Bootstrap'
+	              )
+	            )
+	          ),
+	          _react2.default.createElement(
+	            _reactBootstrap.Nav,
+	            null,
+	            _react2.default.createElement(
+	              _reactBootstrap.NavItem,
+	              { eventKey: 1, href: '#' },
+	              'Menu'
+	            ),
+	            _react2.default.createElement(
+	              _reactBootstrap.NavItem,
+	              { eventKey: 2, href: '#' },
+	              'Users'
+	            )
+	          )
+	        ),
+	        _react2.default.createElement(
+	          _reactBootstrap.ButtonToolbar,
 	          null,
 	          _react2.default.createElement(
 	            _reactBootstrap.Button,

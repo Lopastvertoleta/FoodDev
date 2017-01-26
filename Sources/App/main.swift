@@ -1,19 +1,17 @@
 import Vapor
 import VaporPostgreSQL
+import Auth
 
-let block = {
-    (variable:Int) -> Void in
-    print(variable)
-}
+let auth = AuthMiddleware(user: User.self)
+
 
 let drop = Droplet()
 
+drop.middleware.append(auth)
 try? drop.addProvider(VaporPostgreSQL.Provider)
 
-print(drop.config)
-
 drop.get { req in
-    return try drop.view.make("../../Public/js/index.html")
+    return try drop.view.make("../../Public/js/index_prod.html")
 }
 
 drop.get("psqlprovider") { (request) in
@@ -53,5 +51,6 @@ drop.post("menuItems") { (request) in
 drop.resource("posts", PostController())
 
 drop.preparations.append(MenuItem.self)
+drop.preparations.append(User.self)
 
 drop.run()
