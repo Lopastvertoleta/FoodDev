@@ -1,30 +1,51 @@
-import React, { Component } from 'react';
-import { Button, ButtonToolbar, PageHeader, Nav, Navbar, NavItem } from 'react-bootstrap';
-import './App.css';
+// import React, { Component } from 'react';
+// import { Provider } from 'react-redux';
+// import configureStore from './redux/store';
+// import Navigator from './navigation/Navigator';
 
-class App extends Component {
+// const store = configureStore();
+
+// export default class App extends Component {
+//   render() {
+//     return (
+//       <Provider store={store}>
+//         <Navigator />
+//       </Provider>
+//     );
+//   }
+// }
+import React, { Component } from 'react';
+import { Provider } from 'react-redux';
+import { Router, Route, hashHistory } from 'react-router';
+import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
+import { combineReducers, createStore, applyMiddleware, compose, bindActionCreators } from 'redux';
+import thunk from 'redux-thunk';
+
+import MainPage from './scenes/MainPage';
+import Login from './scenes/Login';
+
+const rootReducer = combineReducers({
+  routing: routerReducer
+});
+
+const middleware = [thunk];
+
+const store = createStore(
+  rootReducer,
+  compose(applyMiddleware(...middleware))
+);
+
+
+const history = syncHistoryWithStore(hashHistory, store);
+export default class Navigator extends Component {
   render() {
     return (
-      <div className="App">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap.min.css" />
-        <PageHeader>Welcome to FoodDev!</PageHeader>
-        <Navbar>
-          <Navbar.Header>
-            <Navbar.Brand>
-              <a href="#">React-Bootstrap</a>
-            </Navbar.Brand>
-          </Navbar.Header>
-          <Nav>
-            <NavItem eventKey={1} href="#">Menu</NavItem>
-            <NavItem eventKey={2} href="#">Users</NavItem>
-          </Nav>
-        </Navbar>
-        <ButtonToolbar>
-          <Button bsStyle="primary" bsSize="large">Large button</Button>
-          <Button bsSize="large">Large button</Button>
-        </ButtonToolbar>
-      </div>
+      <Provider store={store}>
+        <Router history={history}>
+          <Route path="/" component={Login} />
+          <Route path="main" component={MainPage} />
+        </Router>
+      </Provider>
     );
   }
 }
-export default App;

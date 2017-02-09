@@ -1,13 +1,13 @@
 const path = require('path');
 
 module.exports = {
-  entry: ["./src/index.js"],
+  entry: ['babel-polyfill', './src/index.js'],
 
   output: {
     path: __dirname,
-    filename: "public/bundle.js",
+    filename: 'public/bundle.js',
   },
-  devtool: "source-map",
+  devtool: 'source-map',
   module: {
     loaders: [
       {
@@ -17,19 +17,19 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        loader: "style-loader!css-loader"
+        loader: 'style-loader!css-loader'
       },
       {
         test: /\.less$/,
-        loader: "style-loader!css-loader!less-loader"
+        loader: 'style-loader!css-loader!less-loader'
       },
       {
         test: /\.scss$/,
-        loaders: ["style-loader", "css-loader?sourceMap", "sass-loader?sourceMap"]
+        loaders: ['style-loader', 'css-loader?sourceMap', 'sass-loader?sourceMap']
       }
     ]
   },
   sassLoader: {
-    includePaths: [path.resolve(__dirname, "./src")]
+    includePaths: [path.resolve(__dirname, './src')]
   }
 };

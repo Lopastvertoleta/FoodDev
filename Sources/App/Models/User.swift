@@ -8,6 +8,7 @@
 
 import Vapor
 import Auth
+import TurnstileCrypto
 
 final class User: Model {
     var id: Node?
@@ -47,8 +48,20 @@ final class User: Model {
 }
 
 extension User: Auth.User {
-    static func authenticate(credentials: Credentials) throws -> Auth.User {
+    static func authenticate(credentials: Credentials) throws -> User {
         switch credentials {
+        case let emailPassword as APIKey:
+            let email = emailPassword.id
+            let password = emailPassword.secret
+            
+            guard let user = try User.query().filter("email", email).first() else {
+                throw Abort.custom(status: .notFound, message: "User with this email was not found")
+            }
+            if (user.password != password) {
+                throw Abort.custom(status: .forbidden, message: "Invalid password")
+            }
+            
+            return user
         case let accessToken as AccessToken:
             guard let user = try User.query().filter("access_token", accessToken.string).first() else {
                 throw Abort.custom(status: .forbidden, message: "Invalid access token.")
@@ -62,13 +75,6 @@ extension User: Auth.User {
     }
     
     static func register(credentials: Credentials) throws -> Auth.User {
-        func generateToken() -> String {
-            let letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-            
-            return (0..<128).reduce("") { (result, index) -> String in
-                return result + String(letters.characters.array[Int.random(min: 0, max: letters.count-1)])
-            }
-        }
         
         throw Abort.notFound
     }

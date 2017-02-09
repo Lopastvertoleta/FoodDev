@@ -1,7 +1,5 @@
-const ActionTypes = {
-  //Counter action types
-  INCREMENT: 'INCREMENT',
-  DECREMENT: 'DECREMENT'
+export default {
+  SET_USER: 'SET_USER',
+  SET_ACCESS_TOKEN: 'SET_ACCESS_TOKEN',
+  SET_IS_REMEMBERED: 'SET_IS_REMEMBERED'
 };
-
-export default ActionTypes;
