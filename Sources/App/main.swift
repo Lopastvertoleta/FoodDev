@@ -79,9 +79,11 @@ drop.post("login") { (request) in
         var user = try User.authenticate(credentials: APIKey(id: email, secret: password))
         user.accessToken = try drop.hash.make(Helper.generateToken())
         try user.save()
-        try request.session().data["remembered"] = Node.bool(true)
-        print(try request.session().data)
-        drop.storage["remembered"] = Node.bool(true)
+        
+        let data = ["remembered": Node.bool(true), "token": Node.string(user.accessToken)]
+        
+        try request.session().data = try data.makeNode()
+
         return try user.makeJSON()
     } catch {
         throw Abort.serverError
@@ -89,30 +91,13 @@ drop.post("login") { (request) in
 }
 
 drop.get("checkAuthentication") { (request) in
-    
     guard let session = try? request.session(), let remembered = session.data["remembered"]?.bool
         else { throw Abort.custom(status: .forbidden, message: "YOU SHALL NOT PASS") }
     
-//    guard let rememberedWrap = drop.storage["remembered"] as? Node, let remembered = rememberedWrap.bool
-//        else { throw Abort.custom(status: .forbidden, message: "") }
-    
     if remembered {
-        return JSON.init(try! [ "success": true ].makeNode())
+        return JSON.init(session.data)
     } else {
         throw Abort.custom(status: .forbidden, message: "YOU SHALL NOT PASS")
-    }
-}
-
-
-drop.get("testValidation") { (request) in
-    guard let token = request.headers["Authentication"] else { throw Abort.badRequest }
-    
-    do {
-        let user = try User.authenticate(credentials: AccessToken(string: token))
-        
-        return JSON(try user.makeNode())
-    } catch {
-        throw Abort.serverError
     }
 }
 

@@ -24,7 +24,7 @@ export default (state = initialState, action = {}) => {
     case ActionTypes.SET_IS_REMEMBERED:
       return {
         ...state,
-        isRemembered: false
+        isRemembered: action.payload
       };
 
     default:

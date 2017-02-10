@@ -31762,15 +31762,16 @@
 	
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 	
-	var _constants = __webpack_require__(516);
+	var _index = __webpack_require__(516);
 	
-	var _constants2 = _interopRequireDefault(_constants);
+	var _index2 = _interopRequireDefault(_index);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	var initialState = {
 	  user: {},
-	  access_token: ''
+	  access_token: '',
+	  isRemembered: false
 	};
 	
 	exports.default = function () {
@@ -31779,14 +31780,19 @@
 	
 	  switch (action.type) {
 	
-	    case _constants2.default.SET_USER:
+	    case _index2.default.SET_USER:
 	      return _extends({}, state, {
 	        user: action.payload
 	      });
 	
-	    case _constants2.default.SET_ACCESS_TOKEN:
+	    case _index2.default.SET_ACCESS_TOKEN:
 	      return _extends({}, state, {
 	        access_token: action.payload
+	      });
+	
+	    case _index2.default.SET_IS_REMEMBERED:
+	      return _extends({}, state, {
+	        isRemembered: action.payload
 	      });
 	
 	    default:
@@ -31805,7 +31811,8 @@
 	});
 	exports.default = {
 	  SET_USER: 'SET_USER',
-	  SET_ACCESS_TOKEN: 'SET_ACCESS_TOKEN'
+	  SET_ACCESS_TOKEN: 'SET_ACCESS_TOKEN',
+	  SET_IS_REMEMBERED: 'SET_IS_REMEMBERED'
 	};
 
 /***/ },
@@ -31837,6 +31844,10 @@
 	
 	var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
 	
+	var _auth = __webpack_require__(515);
+	
+	var _auth2 = _interopRequireDefault(_auth);
+	
 	var _MainPage = __webpack_require__(577);
 	
 	var _MainPage2 = _interopRequireDefault(_MainPage);
@@ -31851,26 +31862,11 @@
 	
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } // import React, { Component } from 'react';
-	// import { Provider } from 'react-redux';
-	// import configureStore from './redux/store';
-	// import Navigator from './navigation/Navigator';
-	
-	// const store = configureStore();
-	
-	// export default class App extends Component {
-	//   render() {
-	//     return (
-	//       <Provider store={store}>
-	//         <Navigator />
-	//       </Provider>
-	//     );
-	//   }
-	// }
-	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
 	var rootReducer = (0, _redux.combineReducers)({
-	  routing: _reactRouterRedux.routerReducer
+	  routing: _reactRouterRedux.routerReducer,
+	  auth: _auth2.default
 	});
 	
 	var middleware = [_reduxThunk2.default];
@@ -37290,7 +37286,7 @@
 	        _react2.default.createElement(
 	          _reactBootstrap.PageHeader,
 	          null,
-	          'Welcome to FoodDev!'
+	          this.props.auth.isRemembered ? 'Welcome to FoodDev!' : 'GO AWAY'
 	        ),
 	        _react2.default.createElement(
 	          _reactBootstrap.Navbar,
@@ -56058,9 +56054,9 @@
 	
 	var _reactRouter = __webpack_require__(518);
 	
-	var _constants = __webpack_require__(516);
+	var _index = __webpack_require__(516);
 	
-	var _constants2 = _interopRequireDefault(_constants);
+	var _index2 = _interopRequireDefault(_index);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -56069,63 +56065,62 @@
 	var login = exports.login = function login(email, password) {
 	  return function () {
 	    var _ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee(dispatch) {
-	      var response, user;
 	      return regeneratorRuntime.wrap(function _callee$(_context) {
 	        while (1) {
 	          switch (_context.prev = _context.next) {
 	            case 0:
-	              _context.prev = 0;
-	              _context.next = 3;
-	              return fetch('/login', {
-	                method: 'POST',
-	                headers: {
-	                  'Content-Type': 'application/json'
-	                },
-	                body: JSON.stringify({
-	                  email: email,
-	                  password: password
-	                })
-	              });
+	              try {
+	                (function () {
 	
-	            case 3:
-	              response = _context.sent;
+	                  var request = new XMLHttpRequest();
 	
-	              if (!(response.status === 200)) {
-	                _context.next = 13;
-	                break;
+	                  request.onload = function () {
+	                    if (request.status === 200) {
+	                      var user = JSON.parse(request.response);
+	                      dispatch({ type: _index2.default.SET_USER, payload: user });
+	                      dispatch({ type: _index2.default.SET_ACCESS_TOKEN, payload: user.token || '' });
+	                      _reactRouter.hashHistory.push('main');
+	                    }
+	                    console.log(request);
+	                  };
+	                  request.open('POST', '/login');
+	                  request.setRequestHeader('Content-Type', 'application/json');
+	                  request.send(JSON.stringify({
+	                    email: email,
+	                    password: password
+	                  }));
+	                  // const response = await fetch('/login', {
+	                  //   method: 'POST',
+	                  //   headers: {
+	                  //     'Content-Type': 'application/json'
+	                  //   },
+	                  //   credentials: 'same-origin',
+	                  //   body: JSON.stringify({
+	                  //     email,
+	                  //     password
+	                  //   }),
+	                  //  // mode: 'no-cors',
+	                  // });
+	
+	                  // if (response.status === 200) {
+	                  //   const user = await response.json();
+	                  //   dispatch({ type: ActionTypes.SET_USER, payload: user });
+	                  //   dispatch({ type: ActionTypes.SET_ACCESS_TOKEN, payload: user.token || '' });
+	                  //   hashHistory.push('main');
+	                  // } else {
+	                  //   console.log(response/* .json()*/);
+	                  // }
+	                })();
+	              } catch (error) {
+	                console.log(error);
 	              }
 	
-	              _context.next = 7;
-	              return response.json();
-	
-	            case 7:
-	              user = _context.sent;
-	
-	              dispatch({ type: _constants2.default.SET_USER, payload: user });
-	              dispatch({ type: _constants2.default.SET_ACCESS_TOKEN, payload: user.token || '' });
-	              _reactRouter.hashHistory.push('main');
-	              _context.next = 14;
-	              break;
-	
-	            case 13:
-	              console.log(response /* .json()*/);
-	
-	            case 14:
-	              _context.next = 19;
-	              break;
-	
-	            case 16:
-	              _context.prev = 16;
-	              _context.t0 = _context['catch'](0);
-	
-	              console.log(_context.t0);
-	
-	            case 19:
+	            case 1:
 	            case 'end':
 	              return _context.stop();
 	          }
 	        }
-	      }, _callee, undefined, [[0, 16]]);
+	      }, _callee, undefined);
 	    }));
 	
 	    return function (_x) {
@@ -56137,34 +56132,56 @@
 	var checkAuthentication = exports.checkAuthentication = function checkAuthentication() {
 	  return function () {
 	    var _ref2 = _asyncToGenerator(regeneratorRuntime.mark(function _callee2(dispatch) {
-	      var response;
+	      var response, responseJSON;
 	      return regeneratorRuntime.wrap(function _callee2$(_context2) {
 	        while (1) {
 	          switch (_context2.prev = _context2.next) {
 	            case 0:
 	              _context2.prev = 0;
 	              _context2.next = 3;
-	              return fetch('/checkAuthentication');
+	              return fetch('/checkAuthentication', {
+	                credentials: 'same-origin'
+	              });
 	
 	            case 3:
 	              response = _context2.sent;
 	
-	              console.log(response);
-	              _context2.next = 10;
-	              break;
+	              if (!(response.status === 200)) {
+	                _context2.next = 13;
+	                break;
+	              }
+	
+	              _context2.next = 7;
+	              return response.json();
 	
 	            case 7:
-	              _context2.prev = 7;
+	              responseJSON = _context2.sent;
+	
+	              console.log(responseJSON);
+	              dispatch({ type: _index2.default.SET_IS_REMEMBERED, payload: true });
+	              dispatch({ type: _index2.default.SET_ACCESS_TOKEN, payload: responseJSON.token });
+	              _context2.next = 14;
+	              break;
+	
+	            case 13:
+	              console.log(response);
+	
+	            case 14:
+	              _context2.next = 19;
+	              break;
+	
+	            case 16:
+	              _context2.prev = 16;
 	              _context2.t0 = _context2['catch'](0);
 	
 	              console.log(_context2.t0);
 	
-	            case 10:
+	            case 19:
 	            case 'end':
 	              return _context2.stop();
 	          }
 	        }
-	      }, _callee2, undefined, [[0, 7]]);
+	      }, _callee2, undefined, [[0, 16]]);
 	    }));
 	
 	    return function (_x2) {

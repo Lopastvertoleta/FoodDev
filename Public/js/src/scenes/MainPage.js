@@ -27,7 +27,7 @@ export default class MainPage extends Component {
     return (
       <div className="App">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap.min.css" />
-        <PageHeader>Welcome to FoodDev!</PageHeader>
+        <PageHeader>{this.props.auth.isRemembered ? 'Welcome to FoodDev!' : 'GO AWAY'}</PageHeader>
         <Navbar>
           <Navbar.Header>
             <Navbar.Brand>
