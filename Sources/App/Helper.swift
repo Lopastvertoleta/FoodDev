@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Auth
 
 class Helper {
     class func generateToken() -> String {
@@ -15,5 +16,11 @@ class Helper {
         return (0..<128).reduce("") { (result, index) -> String in
             return result + String(letters.characters.array[Int.random(min: 0, max: letters.count-1)])
         }
+    }
+    
+    class func checkAuthentication(user: User.Type, token: AccessToken) -> Bool {
+        guard let _ = try? user.authenticate(credentials: token) else { return false }
+        
+        return true
     }
 }

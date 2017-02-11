@@ -1,9 +1,9 @@
 import { hashHistory } from 'react-router';
 import ActionTypes from '../constants/index';
+import { fetchMenuItems } from './menu';
 
 export const login = (email, password) => async (dispatch) => {
   try {
-
     const request = new XMLHttpRequest();
 
     request.onload = () => {
@@ -21,27 +21,6 @@ export const login = (email, password) => async (dispatch) => {
       email,
       password
     }));
-    // const response = await fetch('/login', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json'
-    //   },
-    //   credentials: 'same-origin',
-    //   body: JSON.stringify({
-    //     email,
-    //     password
-    //   }),
-    //  // mode: 'no-cors',
-    // });
-
-    // if (response.status === 200) {
-    //   const user = await response.json();
-    //   dispatch({ type: ActionTypes.SET_USER, payload: user });
-    //   dispatch({ type: ActionTypes.SET_ACCESS_TOKEN, payload: user.token || '' });
-    //   hashHistory.push('main');
-    // } else {
-    //   console.log(response/* .json()*/);
-    // }
   } catch (error) {
     console.log(error);
   }
@@ -54,9 +33,11 @@ export const checkAuthentication = () => async (dispatch) => {
     });
     if (response.status === 200) {
       const responseJSON = await response.json();
-      console.log(responseJSON)
+      dispatch(fetchMenuItems(responseJSON.token));
       dispatch({ type: ActionTypes.SET_IS_REMEMBERED, payload: true });
-      dispatch({ type: ActionTypes.SET_ACCESS_TOKEN, payload: responseJSON.token })
+      dispatch({ type: ActionTypes.SET_ACCESS_TOKEN, payload: responseJSON.token });
+    } else if (response.status === 403) {
+      hashHistory.replace('/');
     } else {
       console.log(response);
     }

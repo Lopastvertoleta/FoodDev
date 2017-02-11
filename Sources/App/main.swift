@@ -21,7 +21,13 @@ drop.get { req in
 
 drop.get("menuItems") { (request) in
     do {
-        return try MenuItem.query().run().makeJSON()
+        guard let token = request.auth.header?.bearer
+            else { throw Abort.custom(status: .forbidden, message: "Invalid token") }
+        if Helper.checkAuthentication(user: User.self, token: token) {
+            return try MenuItem.query().run().makeJSON()
+        } else {
+            throw Abort.custom(status: .forbidden, message: "Invalid token")
+        }
     } catch {
         throw Abort.serverError
     }

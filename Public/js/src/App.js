@@ -6,13 +6,15 @@ import { combineReducers, createStore, applyMiddleware, compose, bindActionCreat
 import thunk from 'redux-thunk';
 
 import auth from './redux/reducers/auth';
+import menu from './redux/reducers/menu';
 
 import MainPage from './scenes/MainPage';
 import Login from './scenes/Login';
 
 const rootReducer = combineReducers({
   routing: routerReducer,
-  auth
+  auth,
+  menu
 });
 
 const middleware = [thunk];
