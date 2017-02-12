@@ -22,9 +22,20 @@ drop.get { req in
 drop.get("menuItems") { (request) in
     do {
         guard let token = request.auth.header?.bearer
-            else { throw Abort.custom(status: .forbidden, message: "Invalid token") }
+            else { throw Abort.custom(status: .forbidden, message: "No token found") }
+        
         if Helper.checkAuthentication(user: User.self, token: token) {
-            return try MenuItem.query().run().makeJSON()
+            
+            let limit = request.parameters["limit"]?.int ?? 20
+            let offset = request.parameters["offset"]?.int ?? 0
+            
+            return try MenuItem
+                .query()
+                .sort("id", .descending)
+                .limit(limit, withOffset: offset)
+                .run()
+                .makeJSON()
+            
         } else {
             throw Abort.custom(status: .forbidden, message: "Invalid token")
         }
