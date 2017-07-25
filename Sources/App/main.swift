@@ -151,5 +151,8 @@ drop.get("checkAuthentication") { (request) in
         throw Abort.badRequest
     }
 }
+drop.preparations.append(MenuItem.self)
+drop.preparations.append(User.self)
 
-try drop.run()
+
+drop.run()
