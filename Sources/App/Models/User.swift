@@ -78,13 +78,16 @@ extension User: Auth.User {
         guard let email = facebookResponse["email"]?.string, let name = facebookResponse["name"]?.string else {
             throw Abort.badRequest
         }
+        print("good facebook")
         if let user = try? User.query().filter("email", email).first(), let userUnwrapped = user {
+            print("have user")
             return userUnwrapped
         } else {
+            print("no user")
             let token = try drop.hash.make(Helper.generateToken())
             var user =  User(name: name, email: email, login: email, password: "234234234", accessToken: token)
             try user.save()
-            
+            print("saved user")
             return user
         }
     }
