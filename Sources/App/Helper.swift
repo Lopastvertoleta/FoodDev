@@ -7,7 +7,10 @@
 //
 
 import Foundation
+import Vapor
+import HTTP
 import Auth
+
 
 class Helper {
     class func generateToken() -> String {
@@ -22,5 +25,20 @@ class Helper {
         guard let _ = try? user.authenticate(credentials: token) else { return false }
         
         return true
+    }
+}
+
+
+extension Response {
+    var realJSON:JSON? {
+        get {
+            guard let responseJSON = self.json else {
+                guard let bytes = self.body.bytes else { return nil }
+                
+                return try? JSON(bytes: bytes)
+            }
+            
+            return responseJSON
+        }
     }
 }

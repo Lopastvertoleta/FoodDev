@@ -107,18 +107,49 @@ drop.post("login") { (request) in
     }
 }
 
-drop.get("checkAuthentication") { (request) in
-    guard let session = try? request.session(), let remembered = session.data["remembered"]?.bool
-        else { throw Abort.custom(status: .forbidden, message: "YOU SHALL NOT PASS") }
+drop.post("facebookLogin") { (request) in
+    guard let data = request.json,
+    let facebookToken = data["token"]?.string
+        else { throw Abort.badRequest }
     
-    if remembered {
-        return JSON.init(session.data)
-    } else {
-        throw Abort.custom(status: .forbidden, message: "YOU SHALL NOT PASS")
+    do {
+        let facebookResponse = try drop.client.get("https://graph.facebook.com/me?access_token=\(facebookToken)")
+        
+        guard let uid = facebookResponse.realJSON?["id"]?.string else { throw Abort.badRequest }
+        
+        let anotherFacebookResponse = try drop.client.get(
+            "https://graph.facebook.com/\(uid)",
+            query: [
+                "access_token": facebookToken,
+                "fields": "name, email, picture"
+            ])
+        guard let authJSON = anotherFacebookResponse.realJSON else { throw Abort.badRequest }
+//        throw Abort.badRequest
+        return try User.authenticateViaFacebook(facebookResponse: authJSON)
+    } catch {
+        throw Abort.badRequest
     }
 }
 
-drop.preparations.append(MenuItem.self)
-drop.preparations.append(User.self)
+drop.get("currentUser") { (request) in
+    guard let token = request.auth.header?.bearer
+        else { throw Abort.custom(status: .forbidden, message: "No token found") }
+    
+    guard let user = try? User.authenticate(credentials: token)
+        else { throw Abort.custom(status: .forbidden, message: "Invalid token") }
+    
+    return try user.makeJSON()
+}
 
-drop.run()
+drop.get("checkAuthentication") { (request) in
+    guard let session = try? request.session(), let remembered = session.data["remembered"]?.bool
+        else { throw Abort.badRequest }
+    
+    if remembered {
+        return JSON(session.data)
+    } else {
+        throw Abort.badRequest
+    }
+}
+
+try drop.run()

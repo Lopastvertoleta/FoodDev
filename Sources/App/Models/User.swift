@@ -74,6 +74,21 @@ extension User: Auth.User {
         }
     }
     
+    static func authenticateViaFacebook(facebookResponse: JSON) throws -> User {
+        guard let email = facebookResponse["email"]?.string, let name = facebookResponse["name"]?.string else {
+            throw Abort.badRequest
+        }
+        if let user = try? User.query().filter("email", email).first(), let userUnwrapped = user {
+            return userUnwrapped
+        } else {
+            let token = try drop.hash.make(Helper.generateToken())
+            var user =  User(name: name, email: email, login: email, password: "234234234", accessToken: token)
+            try user.save()
+            
+            return user
+        }
+    }
+    
     static func register(credentials: Credentials) throws -> Auth.User {
         
         throw Abort.notFound
